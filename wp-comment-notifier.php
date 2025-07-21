@@ -22,7 +22,7 @@ define('WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS', [
 add_action('admin_menu', function () {
     add_options_page(
         '评论通知设置',
-        '评论通知通知',
+        '评论通知设置',
         'manage_options',
         'wechat-comment-notifier',
         'wechat_comment_notifier_settings_page'
@@ -33,7 +33,7 @@ add_action('admin_menu', function () {
 function wechat_comment_notifier_settings_page() {
     ?>
     <div class="wrap">
-        <h1>通知设置（企业微信 + Telegram）</h1>
+        <h1>通知推送设置（企业微信 + Telegram）</h1>
         <form method="post" action="options.php">
             <?php
             settings_fields('wechat_comment_notifier_options');
