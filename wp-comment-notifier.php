@@ -22,7 +22,7 @@ define('WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS', [
 add_action('admin_menu', function () {
     add_options_page(
         '评论通知设置',
-        '评论通知推送设置',
+        'WP-comment-notifier推送设置',
         'manage_options',
         'wechat-comment-notifier',
         'wechat_comment_notifier_settings_page'
