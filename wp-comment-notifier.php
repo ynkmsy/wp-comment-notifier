@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: WeChat Comment Notifier + Telegram
+Plugin Name: WP-comment-notifier
 Description: 在有新评论时，通过企业微信和 Telegram 发送通知，可自定义通知内容
-Version: 1.3
+Version: 1.30
 Author: Sy-心情如歌 
 */
 
@@ -22,7 +22,7 @@ define('WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS', [
 add_action('admin_menu', function () {
     add_options_page(
         '评论通知设置',
-        '评论通知设置',
+        '评论通知推送设置',
         'manage_options',
         'wechat-comment-notifier',
         'wechat_comment_notifier_settings_page'
