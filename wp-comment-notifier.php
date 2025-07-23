@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: WP-comment-notifier
-Description: 在有新评论时，通过企业微信和 Telegram 发送通知，可自定义通知内容
-Version: 1.30
-Author: Sy-心情如歌 
+Description: 在有新评论时，通过企业微信和 Telegram 发送通知，可自定义通知内容，支持获取真实访客 IP（支持 CDN 场景）
+Version: 1.31
+Author: Sy-心情如歌（增强 by ChatGPT）
 */
 
 if (!defined('ABSPATH')) exit;
@@ -47,21 +47,12 @@ function wechat_comment_notifier_settings_page() {
 
 // 注册设置项
 add_action('admin_init', function () {
-    // Webhook URL 设置
     register_setting('wechat_comment_notifier_options', 'wechat_comment_notifier_webhook');
     register_setting('wechat_comment_notifier_options', 'wechat_comment_notifier_fields');
-
-    // Telegram 设置项
     register_setting('wechat_comment_notifier_options', 'telegram_bot_token');
     register_setting('wechat_comment_notifier_options', 'telegram_chat_id');
 
-    // Webhook 设置部分
-    add_settings_section(
-        'wechat_section',
-        '通知服务设置',
-        null,
-        'wechat_comment_notifier'
-    );
+    add_settings_section('wechat_section', '通知服务设置', null, 'wechat_comment_notifier');
 
     add_settings_field(
         'wechat_comment_notifier_webhook',
@@ -96,15 +87,9 @@ add_action('admin_init', function () {
         'wechat_section'
     );
 
-    // 通知内容设置部分
-    add_settings_section(
-        'content_section',
-        '通知内容设置',
-        function () {
-            echo '<p>选择要在通知中包含的字段：</p>';
-        },
-        'wechat_comment_notifier'
-    );
+    add_settings_section('content_section', '通知内容设置', function () {
+        echo '<p>选择要在通知中包含的字段：</p>';
+    }, 'wechat_comment_notifier');
 
     add_settings_field(
         'wechat_comment_notifier_fields',
@@ -118,7 +103,6 @@ add_action('admin_init', function () {
 // 通知字段选择回调
 function wechat_comment_notifier_fields_callback() {
     $saved_fields = get_option('wechat_comment_notifier_fields', array_keys(WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS));
-
     foreach (WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS as $field => $label) {
         $checked = in_array($field, $saved_fields) ? 'checked' : '';
         echo "<label><input type='checkbox' name='wechat_comment_notifier_fields[]' value='$field' $checked> $label</label><br>";
@@ -157,10 +141,18 @@ add_action('comment_post', function ($comment_ID, $comment_approved) {
     $comment = get_comment($comment_ID);
     $post = get_post($comment->comment_post_ID);
 
-    // 获取选中的通知字段
+    // ✅ 获取真实 IP（支持 CDN）
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $real_ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } elseif (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $real_ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    } else {
+        $real_ip = $_SERVER['REMOTE_ADDR'];
+    }
+    $comment->comment_author_IP = $real_ip;
+
     $enabled_fields = get_option('wechat_comment_notifier_fields', array_keys(WECHAT_COMMENT_NOTIFIER_DEFAULT_FIELDS));
 
-    // 构建通知内容
     $content = "📢 博客有新评论：\n";
 
     if (in_array('post_title', $enabled_fields)) {
