@@ -3,7 +3,7 @@
 Plugin Name: WP-comment-notifier
 Description: 在有新评论时，通过企业微信和 Telegram 发送通知，可自定义通知内容，支持获取真实访客 IP（支持 CDN 场景）
 Version: 1.31
-Author: Sy-心情如歌（增强 by ChatGPT）
+Author: Sy-心情如歌
 */
 
 if (!defined('ABSPATH')) exit;
